@@ -41,6 +41,7 @@ interface BodyData {
   query: string;
   sessionId: string;
   userId: string;
+  additionalParams?: Record<string, any>;
 }
 
 const LEX_AGENT_ENABLED = process.env.LEX_AGENT_ENABLED || "false";
@@ -227,14 +228,14 @@ async function eventHandler(
 
   try {
     const userBody = JSON.parse(event.body as string) as BodyData;
-    const userId = userBody.userId;
-    const sessionId = userBody.sessionId;
+    const {query, userId, sessionId, additionalParams = {}} = userBody
 
     logger.info("calling the orchestrator");
     const response = await orchestrator.routeRequest(
-      userBody.query,
+      query,
       userId,
-      sessionId
+      sessionId,
+      additionalParams
     );
 
     logger.info("response from the orchestrator");
